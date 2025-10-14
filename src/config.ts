@@ -14,6 +14,7 @@ const envSchema = z.object({
   MAX_TRADE_USD: z.coerce.number().positive().default(1),
   DAILY_CAP_USD: z.coerce.number().positive().default(10),
   MAX_MARKETS_MONITORED: z.coerce.number().int().positive().default(50),
+  REQUESTS_PER_MINUTE: z.coerce.number().int().positive().default(120),
 
   // Risk/edge/fees
   TOTAL_FEE_BPS: z.coerce.number().int().nonnegative().default(200),
@@ -25,9 +26,18 @@ const envSchema = z.object({
   FILL_TIMEOUT_MS: z.coerce.number().int().positive().default(2000),
   CANCEL_IF_PARTIAL: z.coerce.boolean().default(true),
 
+  // Live trading integration (stubs)
+  SIGN_MODE: z.enum(["ENV_KEY", "EXTERNAL_SIGNER"]).default("EXTERNAL_SIGNER"),
+  ENV_PRIVATE_KEY: z.string().optional(),
+  ALLOW_ENV_KEY_IN_PROD: z.coerce.boolean().default(false),
+
   // Logging
   LOG_LEVEL: z.enum(["debug", "info", "warn", "error"]).default("info"),
   PRETTY_LOGS: z.coerce.boolean().default(true),
+
+  // Notifications (optional)
+  TELEGRAM_BOT_TOKEN: z.string().optional(),
+  TELEGRAM_CHAT_ID: z.string().optional(),
 });
 
 export type RuntimeConfig = z.infer<typeof envSchema> & {

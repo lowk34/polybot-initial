@@ -43,12 +43,23 @@ This starter focuses on paper execution. To trade live you will need to:
 - Implement a real `ExecutionClient` that signs and submits orders
 - Ensure robust risk, cancel/replace logic, and error handling
 
+Security warning:
+- Never paste a private key into .env for production. If you temporarily test `SIGN_MODE=ENV_KEY`, keep balances tiny and set `ALLOW_ENV_KEY_IN_PROD=false`.
+- Prefer `SIGN_MODE=EXTERNAL_SIGNER` so your key stays in a separate process or hardware wallet.
+
+Live integration (stubs present):
+- `SIGN_MODE`: `EXTERNAL_SIGNER` (default) or `ENV_KEY` (warned, gated)
+- `ENV_PRIVATE_KEY`: only for local test; must set `ALLOW_ENV_KEY_IN_PROD=true` to enable in prod (not recommended)
+- Requests are throttled via a token bucket (`REQUESTS_PER_MINUTE`)
+
 The architecture here cleanly separates components so you can later plug in a real public data client and execution client without rewriting the strategy/engine.
 
 ### Scripts
 - `npm run dev` — run the bot with TS directly (development)
 - `npm run build` — compile TypeScript to `dist`
 - `npm start` — run compiled build (`dist/cli.js`)
+- `npm run backtest` — run the backtester on `./snapshots.jsonl`
+- `npm test` — run unit tests
 
 ### Project structure
 - `src/cli.ts` — CLI entrypoint

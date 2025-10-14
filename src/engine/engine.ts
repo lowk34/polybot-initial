@@ -2,11 +2,16 @@ import { ExecutionClient, ExecutionFill, PublicClient } from "../types.js";
 import { evaluateUnderround } from "../strategies/underroundArb.js";
 import { logger } from "../logger.js";
 import { loadConfig } from "../config.js";
+import { TokenBucket } from "../utils/throttle.js";
 
 const cfg = loadConfig();
 
 export class Engine {
-  constructor(private publicClient: PublicClient, private execClient: ExecutionClient) {}
+  private requestBucket: TokenBucket;
+  constructor(private publicClient: PublicClient, private execClient: ExecutionClient) {
+    const perMinute = cfg.REQUESTS_PER_MINUTE;
+    this.requestBucket = new TokenBucket(perMinute, perMinute / 60000);
+  }
 
   private dailySpentUsd = 0;
 
@@ -16,6 +21,10 @@ export class Engine {
     for (const m of limited) {
       if (this.dailySpentUsd >= cfg.DAILY_CAP_USD) {
         logger.warn({ dailySpentUsd: this.dailySpentUsd, cap: cfg.DAILY_CAP_USD }, "daily cap reached, skipping");
+        break;
+      }
+      if (!this.requestBucket.take()) {
+        logger.warn("rate limit reached, skipping this iteration's requests");
         break;
       }
       const ob = await this.publicClient.getOrderBook(m.id);
