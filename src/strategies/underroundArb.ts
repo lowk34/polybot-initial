@@ -16,8 +16,21 @@ export function evaluateUnderround(orderBook: OrderBook): StrategyDecision {
   const netEdge = theoreticalUnderround - cfg.feeFraction;
 
   if (netEdge > cfg.edgeFraction) {
-    const legUsd = Math.min(cfg.MAX_TRADE_USD, 10); // cap per leg simply
-    return { shouldTrade: true, reason: `edge ${(netEdge * 100).toFixed(2)}%`, legUsd };
+    return {
+      shouldTrade: true,
+      reason: `edge ${(netEdge * 100).toFixed(2)}%`,
+      yesAsk,
+      noAsk,
+      sumAsk,
+      netEdge,
+    };
   }
-  return { shouldTrade: false, reason: `no edge (net ${(netEdge * 100).toFixed(2)}%)` };
+  return {
+    shouldTrade: false,
+    reason: `no edge (net ${(netEdge * 100).toFixed(2)}%)`,
+    yesAsk,
+    noAsk,
+    sumAsk,
+    netEdge,
+  };
 }

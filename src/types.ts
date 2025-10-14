@@ -39,5 +39,9 @@ export interface ExecutionClient {
 export interface StrategyDecision {
   shouldTrade: boolean;
   reason: string;
-  legUsd?: number; // per leg
+  // Informational fields to aid sizing/logging
+  yesAsk?: number;
+  noAsk?: number;
+  sumAsk?: number;
+  netEdge?: number; // underround minus fee fraction
 }

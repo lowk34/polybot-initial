@@ -15,12 +15,32 @@ export class Engine {
       const decision = evaluateUnderround(ob);
       logger.debug({ marketId: m.id, decision }, "evaluated");
 
-      if (decision.shouldTrade && decision.legUsd && ob.bestAsk.YES && ob.bestAsk.NO) {
-        logger.info({ marketId: m.id, decision }, "placing paired buys (paper)");
-        await Promise.all([
-          this.execClient.placeBuy(m.id, "YES", ob.bestAsk.YES.price, decision.legUsd),
-          this.execClient.placeBuy(m.id, "NO", ob.bestAsk.NO.price, decision.legUsd),
-        ]);
+      if (decision.shouldTrade && ob.bestAsk.YES && ob.bestAsk.NO && decision.yesAsk && decision.noAsk) {
+        // Equal-contract sizing: choose contracts limited by per-leg USD and available best ask liquidity
+        const perLegUsdCap = Math.max(1, Math.min(cfg.MAX_TRADE_USD, 10));
+        const yesPrice = decision.yesAsk;
+        const noPrice = decision.noAsk;
+
+        const yesContractsCap = perLegUsdCap / yesPrice;
+        const noContractsCap = perLegUsdCap / noPrice;
+        const yesAvail = ob.bestAsk.YES.size;
+        const noAvail = ob.bestAsk.NO.size;
+        const contracts = Math.max(0, Math.min(yesContractsCap, noContractsCap, yesAvail, noAvail));
+
+        if (contracts > 0) {
+          const yesUsd = contracts * yesPrice;
+          const noUsd = contracts * noPrice;
+          logger.info(
+            { marketId: m.id, contracts, yesUsd, noUsd, yesPrice, noPrice, reason: decision.reason },
+            "placing paired buys (paper)"
+          );
+          await Promise.all([
+            this.execClient.placeBuy(m.id, "YES", yesPrice, yesUsd),
+            this.execClient.placeBuy(m.id, "NO", noPrice, noUsd),
+          ]);
+        } else {
+          logger.info({ marketId: m.id }, "sizing resulted in zero contracts, skip");
+        }
       } else {
         logger.info({ marketId: m.id, reason: decision.reason }, "skip");
       }
