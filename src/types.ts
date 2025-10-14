@@ -33,7 +33,19 @@ export interface ExecutionFill {
 }
 
 export interface ExecutionClient {
-  placeBuy(marketId: string, outcome: Outcome, maxPrice: number, usdAmount: number): Promise<ExecutionFill | null>;
+  placeBuy(
+    marketId: string,
+    outcome: Outcome,
+    maxPrice: number,
+    usdAmount: number,
+    options?: {
+      timeInForce?: "IOC" | "FOK";
+      cancelIfPartial?: boolean;
+      slippagePct?: number; // 0..100
+      fillTimeoutMs?: number;
+      simulateLiquidity?: number; // contracts available at best ask
+    }
+  ): Promise<ExecutionFill | { partial: ExecutionFill; cancelled: boolean } | null>;
 }
 
 export interface StrategyDecision {

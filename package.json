@@ -8,6 +8,8 @@
     "build": "tsc -p tsconfig.json",
     "start": "node dist/cli.js",
     "dev": "tsx src/cli.ts",
+    "backtest": "tsx src/cli.ts --backtest ./snapshots.jsonl",
+    "test": "vitest run",
     "lint": "echo \"No linter configured\""
   },
   "dependencies": {
@@ -18,6 +20,7 @@
   },
   "devDependencies": {
     "@types/node": "^20.12.12",
+    "vitest": "^2.1.1",
     "tsx": "^4.16.2",
     "typescript": "^5.6.3"
   }

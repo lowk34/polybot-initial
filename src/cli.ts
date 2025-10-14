@@ -4,6 +4,7 @@ import { logger } from "./logger.js";
 import { MockPolymarketPublicClient } from "./clients/polymarketPublicClient.js";
 import { PaperExecutionClient } from "./clients/paperExecution.js";
 import { Engine } from "./engine/engine.js";
+import { backtestSnapshots } from "./backtest/backtester.js";
 
 async function main() {
   const cfg = loadConfig();
@@ -15,6 +16,14 @@ async function main() {
 
   const args = new Set(process.argv.slice(2));
   const runOnce = args.has("--once") || process.env.RUN_ONCE === "true";
+  const backtestIdx = process.argv.indexOf("--backtest");
+  const backtestPath = backtestIdx >= 0 ? process.argv[backtestIdx + 1] : undefined;
+
+  if (backtestPath) {
+    const res = await backtestSnapshots(backtestPath);
+    logger.info({ backtestPath, ...res }, "backtest done");
+    return;
+  }
 
   if (runOnce) {
     logger.info("running single iteration (--once)");

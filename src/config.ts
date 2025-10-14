@@ -4,12 +4,28 @@ import { z } from "zod";
 dotenv.config();
 
 const envSchema = z.object({
+  // Mode & clients
+  PAPER_MODE: z.coerce.boolean().default(true),
   PUBLIC_CLIENT: z.enum(["mock"]).default("mock"),
   MOCK_MARKET_IDS: z.string().default("nfl-yes-no-1,nfl-yes-no-2"),
-  POLL_INTERVAL_MS: z.coerce.number().int().positive().default(1500),
-  MAX_TRADE_USD: z.coerce.number().positive().default(5),
+
+  // Engine cadence & limits
+  POLL_INTERVAL_MS: z.coerce.number().int().positive().default(1000),
+  MAX_TRADE_USD: z.coerce.number().positive().default(1),
+  DAILY_CAP_USD: z.coerce.number().positive().default(10),
+  MAX_MARKETS_MONITORED: z.coerce.number().int().positive().default(50),
+
+  // Risk/edge/fees
   TOTAL_FEE_BPS: z.coerce.number().int().nonnegative().default(200),
-  EDGE_BPS: z.coerce.number().int().nonnegative().default(25),
+  EDGE_BPS: z.coerce.number().int().nonnegative().default(100),
+  MAX_SLIPPAGE_PCT: z.coerce.number().nonnegative().default(1),
+
+  // Execution behavior (paper)
+  TIME_IN_FORCE: z.enum(["IOC", "FOK"]).default("IOC"),
+  FILL_TIMEOUT_MS: z.coerce.number().int().positive().default(2000),
+  CANCEL_IF_PARTIAL: z.coerce.boolean().default(true),
+
+  // Logging
   LOG_LEVEL: z.enum(["debug", "info", "warn", "error"]).default("info"),
   PRETTY_LOGS: z.coerce.boolean().default(true),
 });
