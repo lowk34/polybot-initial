@@ -1,0 +1,27 @@
+{
+  "name": "polymarket-liquidity-bot",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=18.17.0" },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/cli.js",
+    "dev": "tsx src/cli.ts",
+    "backtest": "tsx src/cli.ts --backtest ./snapshots.jsonl",
+    "test": "vitest run",
+    "lint": "echo \"No linter configured\""
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "pino": "^9.3.2",
+    "pino-pretty": "^11.2.2",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^20.12.12",
+    "vitest": "^2.1.1",
+    "tsx": "^4.16.2",
+    "typescript": "^5.6.3"
+  }
+}
